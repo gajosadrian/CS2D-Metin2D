@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext"],
+    "noLib": false,
+    "strict": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false
+  },
+
+  "tstl": {
+    "luaTarget": "5.1",
+    "noHeader": true,
+    "sourceMapTraceback": false,
+    "luaLibImport": "none"
+  }
+}
