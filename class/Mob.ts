@@ -76,7 +76,7 @@ export class Mob implements IMob {
         throw new Error("Method not implemented.");
     }
 
-    setTargetPos(x: number, y: number): void {
+    setTargetPosition(x: number, y: number): void {
         throw new Error("Method not implemented.");
     }
 
