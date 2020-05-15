@@ -53,12 +53,6 @@ interface IMobTarget {
 }
 
 interface IImage extends IPosition {
-    // Extra
-    // useStrictPosition(set?: boolean): void;
-    //
-
-    pushTowards(time: number, dir: number, power: number, instantPosition?: boolean): void;
-
     setAlpha(alpha: number): void;
     getAlpha(): number;
     /**
@@ -87,10 +81,15 @@ interface IImage extends IPosition {
     setScale(x: number, y: number): void;
     /** @tupleReturn */
     getScale(): [number, number];
+    /** @tupleReturn */
+    getSize(): [number, number];
+    getWidth(): number;
+    getHeight(): number;
     setShadow(shadow: 0 | 1): void;
     isShadow(): boolean;
 
     setFrame(frame: number): void;
+    getFrame(): number;
     nextFrame(): void;
     prevFrame(): void;
 
@@ -111,10 +110,10 @@ interface IImage extends IPosition {
     animateAlpha(time: number, alpha: number): void;
     animateColor(time: number, r: number, g: number, b: number): void;
     animateFrame(time: number, frame: number): void;
-    animatePosition(time: number, x: number, y: number, rotation?: number): void;
+    animatePosition(time: number, x: number, y: number, rotation?: number, instantPosition?: boolean): void;
     animateRotation(time: number, rotation: number): void;
     animateScale(time: number, x: number, y: number): void;
-    isAnimating(): boolean;
+    isAnimating(key?: string): boolean;
 
     show(): void;
     hide(): void;

@@ -23,7 +23,7 @@ enum Type {
 }
 
 enum Blend {
-    normal,
+    NORMAL,
     light,
     shade,
     solid
@@ -41,58 +41,67 @@ enum Flag {
     recoil
 }
 
-class Image implements IImage {
-    private _animationClock: number = 0
+interface IProp {
+    [key: string]: any
+}
 
+class Image implements IImage {
     private _id: number
     private _removed: boolean = false
     private _playerId?: number
 
     private _imageMode: ImageMode
     private _shadow: 0 | 1
+    private _isSpritesheet: boolean = false
 
-    private _property = {
-        color: {
-            r: 255,
-            g: 255,
-            b: 255,
-            state: ImageState.UPDATED
-        },
-        alpha: {
-            value: 1,
-            state: ImageState.UPDATED
-        },
-        blend: {
-            value: 0,
-            state: ImageState.UPDATING
-        },
-        shadow: {
-            value: 0
-        },
-        frame: {
-            value: 1,
-            state: ImageState.UPDATED
-        }
-    }
-
-    private _transform = {
+    private _animationClock: number = 0
+    private _props: IProp = {
         position: {
             x: 0,
             y: 0,
-            state: ImageState.UPDATED
+            state: ImageState.UPDATED,
+            clock: 0
         },
         scale: {
             x: 1,
             y: 1,
-            state: ImageState.UPDATED
+            state: ImageState.UPDATED,
+            clock: 0
         },
         rotation: {
             value: 0,
-            state: ImageState.UPDATED
+            state: ImageState.UPDATED,
+            clock: 0
+        },
+        color: {
+            r: 255,
+            g: 255,
+            b: 255,
+            state: ImageState.UPDATED,
+            clock: 0
+        },
+        alpha: {
+            value: 1,
+            state: ImageState.UPDATED,
+            clock: 0
+        },
+        frame: {
+            value: 1,
+            count: 0,
+            state: ImageState.UPDATED,
+            clock: 0
+        },
+        blend: {
+            value: Blend.NORMAL,
+        },
+        size: {
+            width: 0,
+            height: 0
+        },
+        shadow: {
+            value: 0
         }
     }
-
-    private _isSpritesheet: boolean = false
 
     constructor(imagePath: string, x: number, y: number, mode: ImageMode, playerId?: PlayerID) {
         this._imageMode = mode
@@ -101,50 +110,136 @@ class Image implements IImage {
     }
 
     setAlpha(alpha: number): void {
-        if (this._removed) return
+        this.setProp('alpha', 'value', alpha, ImageState.UPDATED, 0)
+
         imagealpha(this._id, alpha)
     }
 
+    getAlpha(): number {
+        this.tryUpdateProp('alpha', 'value', 'alpha')
+        return this.getProp('alpha').value
+    }
+
     setBlend(blend: BlendMode): void {
-        if (this._removed) return
+        this.setProp('blend', 'value', blend, ImageState.UPDATED)
+
         imageblend(this._id, blend)
     }
 
+    getBlend(): number {
+        return this.getProp('blend').value
+    }
+
     setColor(r: number, g: number, b: number): void {
-        if (this._removed) return
+        this.setProp('color', 'r', r)
+        this.setProp('color', 'g', g)
+        this.setProp('color', 'b', b, ImageState.UPDATED, 0)
+
         imagecolor(this._id, r, g, b)
     }
 
+    getColor(): [number, number, number] {
+        const color = this.getProp('color')
+        return [color.r, color.g, color.b]
+    }
+
     setPosition(x: number, y: number, rotation?: number): void {
-        if (this._removed) return
-        this._transform.position.x = x
-        this._transform.position.y = y
-        this._transform.position.state = ImageState.UPDATED
+        this.setProp('position', 'x', x)
+        this.setProp('position', 'y', y, ImageState.UPDATED, 0)
 
         if (rotation) {
-            this._transform.rotation.value = rotation
-            this._transform.rotation.state = ImageState.UPDATED
+            this.setProp('rotation', 'value', rotation, ImageState.UPDATED, 0)
         }
 
-        imagepos(this._id, x, y, this._transform.rotation.value)
+        imagepos(this._id, x, y, this.getProp('rotation').value)
+    }
+
+    getPosition(): [number, number] {
+        this.tryUpdatePosition()
+        const position = this.getProp('position')
+        return [position.x, position.y]
+    }
+
+    getX(): number {
+        this.tryUpdatePosition()
+        return this.getProp('position').x
+    }
+
+    getY(): number {
+        this.tryUpdatePosition()
+        return this.getProp('position').y
     }
 
     setRotation(rotation: number): void {
-        if (this._removed) return
         this.setPosition(this.getX(), this.getY(), rotation)
     }
 
+    getRotation(): number {
+        this.tryUpdateProp('rotation', 'value', 'rot')
+        return this._props.rotation.value
+    }
+
     setScale(x: number, y: number): void {
-        if (this._removed) return
-        this._transform.scale.x = x
-        this._transform.scale.y = y
-        this._transform.scale.state = ImageState.UPDATED
+        this.setProp('scale', 'x', x)
+        this.setProp('scale', 'y', y, ImageState.UPDATED, 0)
+
         imagescale(this._id, x, y)
     }
 
+    getScale(): [number, number] {
+        return [this._props.scale.x, this._props.scale.y]
+    }
+
+    getScaleX(): number {
+        return this.getProp('scale').x
+    }
+
+    getScaleY(): number {
+        return this.getProp('scale').y
+    }
+
+    getSize(): [number, number] {
+        const size = this.getProp('size')
+        return [size.width, size.height]
+    }
+
+    getWidth(): number {
+        this.tryUpdateProp('size', 'width', 'width')
+        return this.getProp('size').width
+    }
+
+    getHeight(): number {
+        this.tryUpdateProp('size', 'height', 'height')
+        return this.getProp('size').height
+    }
+
+    setFrame(frame: number): void {
+        this.setProp('frame', 'value', frame, ImageState.UPDATED, 0)
+
+        imageframe(this._id, frame)
+    }
+
+    getFrame(): number {
+        this.tryUpdateProp('frame', 'value', 'frame')
+        return this.getProp('frame').value
+    }
+
+    getFrameCount(): number {
+        this.tryUpdateProp('frame', 'count', 'framecount')
+        return this.getProp('frame').count
+    }
+
+    nextFrame(): void {
+        this.setFrame(this.getProp('frame').value + 1)
+    }
+
+    prevFrame(): void {
+        this.setFrame(this.getProp('frame').value - 1)
+    }
+
     setShadow(shadow: 0 | 1): void {
-        if (this._removed) return
         this._shadow = shadow
+
         imageshadow(this._id, shadow)
     }
 
@@ -152,150 +247,80 @@ class Image implements IImage {
         return this._shadow == 1
     }
 
-    setFrame(frame: number): void {
-        if (this._removed) return
-        this._property.frame.value = frame
-        this._property.frame.state = ImageState.UPDATED
-
-        imageframe(this._id, frame)
-    }
-
-    nextFrame(): void {
-        this.setFrame(this._property.frame.value + 1)
-    }
-
-    prevFrame(): void {
-        this.setFrame(this._property.frame.value - 1)
-    }
-
     animateFrameConstantly(speed: number, mode: 0 | 1 | 2 | 3 | 4): void {
-        if (this._removed) return
-        this._property.frame.state = ImageState.CONSTANTLY
+        this.setPropState('frame', ImageState.CONSTANTLY, -1)
 
         tween_animate(this._id, speed, mode)
     }
 
     animateRotationConstantly(speed: number): void {
-        if (this._removed) return
-        this._transform.rotation.state = ImageState.CONSTANTLY
+        this.setPropState('rotation', ImageState.CONSTANTLY, -1)
 
         tween_rotateconstantly(this._id, speed)
     }
 
     animateAlpha(time: number, alpha: number): void {
-        if (this._removed) return
-        this._property.alpha.state = ImageState.UPDATING
+        this.setPropState('alpha', ImageState.UPDATING, time)
 
-        this.setAnimationClock(time)
         tween_alpha(this._id, time, alpha)
     }
 
     animateColor(time: number, r: number, g: number, b: number): void {
-        if (this._removed) return
-        this._property.color.state = ImageState.UPDATING
+        this.setPropState('color', ImageState.UPDATING, time)
 
-        this.setAnimationClock(time)
         tween_color(this._id, time, r, g, b)
     }
 
     animateFrame(time: number, frame: number): void {
-        if (this._removed) return
-        this._property.frame.state = ImageState.UPDATING
+        this.setPropState('frame', ImageState.UPDATING, time)
 
-        this.setAnimationClock(time)
         tween_frame(this._id, time, frame)
     }
 
-    animatePosition(time: number, x: number, y: number, rot?: number): void {
-        if (this._removed) return
-        this._transform.position.state = ImageState.UPDATING
+    animatePosition(time: number, x: number, y: number, rotation?: number, instantPosition?: boolean): void {
+        if (! instantPosition && time > 100) {
+            this.setPropState('position', ImageState.UPDATING, time)
+        } else {
+            this.setProp('position', 'x', x)
+            this.setProp('position', 'y', y, ImageState.UPDATED, 0)
+        }
 
-        this.setAnimationClock(time)
-        tween_move(this._id, time, x, y, rot)
+        this.setProp('rotation', 'value', rotation, ImageState.UPDATED, 0)
+
+        tween_move(this._id, time, x, y, rotation)
     }
 
     animateRotation(time: number, rot: number): void {
-        if (this._removed) return
-        this._transform.rotation.state = ImageState.UPDATING
+        this.setPropState('rotation', ImageState.UPDATING, time)
 
-        this.setAnimationClock(time)
         tween_rotate(this._id, time, rot)
     }
 
     animateScale(time: number, x: number, y: number): void {
-        if (this._removed) return
-        this._transform.scale.state = ImageState.UPDATING
+        this.setPropState('scale', ImageState.UPDATING, time)
 
-        this.setAnimationClock(time)
         tween_scale(this._id, time, x, y)
     }
 
-    pushTowards(time: number, dir: number, power: number, instantPosition: boolean = false): void {
-        if (this._removed) return
-        const [x, y] = this.positionTrigger(dir, power)
+    isAnimating(key?: string): boolean {
+        const clockTime = clock()
 
-        if (instantPosition) {
-            this._transform.position.x = x
-            this._transform.position.y = y
-            this._transform.position.state = ImageState.UPDATED
-        } else {
-            this._transform.position.state = ImageState.UPDATING
-            this.setAnimationClock(time)
+        if (key) {
+            const prop = this.getProp(key)
+            return prop.clock == -1 || prop.clock >= clockTime
         }
 
-        tween_move(this._id, time, x, y, dir)
+        return this._animationClock == -1 || this._animationClock >= clockTime
     }
 
-    isAnimating(): boolean {
-        return this._animationClock >= clock()
-    }
+    private setAnimationClock(key: string, time: number): void {
+        const newAnimationClock = clock() + (time * 0.001)
+        const prop = this.getProp(key)
 
-    setAnimationClock(time: number): void {
-        time *= 0.001
-        const newAnimationClock = clock() + time
-
-        if (this._animationClock < newAnimationClock) {
+        if (prop.clock < newAnimationClock) {
+            prop.clock = newAnimationClock
             this._animationClock = newAnimationClock
         }
-    }
-
-    getX(): number {
-        this.tryUpdatePosition()
-        return this._transform.position.x
-    }
-
-    getY(): number {
-        this.tryUpdatePosition()
-        return this._transform.position.y
-    }
-
-    getRotation(): number {
-        this.tryUpdateProp(this._transform.rotation, 'rot')
-        return this._transform.rotation.value
-    }
-
-    getAlpha(): number {
-        this.tryUpdateProp(this._property.alpha, 'alpha')
-        return this._property.alpha.value
-    }
-
-    getBlend(): number {
-        return this._property.blend.value
-    }
-
-    getColor(): [number, number, number] {
-        this.tryUpdateProp(this._property.color)
-        return [this._property.color.r, this._property.color.g, this._property.color.b]
-    }
-
-    getPosition(): [number, number] {
-        this.tryUpdatePosition()
-        return [this._transform.position.x, this._transform.position.y]
-    }
-
-    getScale(): [number, number] {
-        this.tryUpdateProp(this._transform.scale)
-        return [this._transform.scale.x, this._transform.scale.y]
     }
 
     show(): void {
@@ -312,41 +337,66 @@ class Image implements IImage {
         delete this._id
     }
 
+    private setProp(key: string, field: string, val: any, state?: ImageState, animationTime?: number): void {
+        const prop = this.getProp(key)
+
+        if (state) {
+            prop.state = state
+        }
+
+        if (animationTime) {
+            this.setAnimationClock(key, animationTime)
+        }
+
+        prop[field] = val
+    }
+
+    private setPropState(key: string, state: ImageState, animationTime?: number): void {
+        const prop = this.getProp(key)
+
+        prop.state = ImageState
+
+        if (animationTime) {
+            this.setAnimationClock(key, animationTime)
+        }
+    }
+
+    private getProp(key: string): IProp {
+        return this._props[key]
+    }
+
+    private tryUpdatePosition(): void {
+        const position = this._props.position
+
+        if (position.state != ImageState.UPDATED) {
+            if (! this.isAnimating('position')) {
+                position.state = ImageState.UPDATED
+            }
+            position.x = imageparam(this._id, 'x')
+            position.y = imageparam(this._id, 'y')
+        }
+    }
+
+    private tryUpdateProp(key: string, field: string, param: any): void {
+        const prop = this.getProp(key)
+
+        if (prop.state != ImageState.UPDATED) {
+            if (! this.isAnimating(key)) {
+                prop.state = ImageState.UPDATED
+            }
+
+            prop[field] = imageparam(this._id, <any>param)
+        }
+    }
+
     /**
-     * PRIVATE
+     * STATIC
      */
 
-    /** @tupleReturn */
-    private positionTrigger(dir: number, power: number) {
-        dir = (dir < -90) ? dir + 360 : dir
-
-        let angle = rad(abs(dir + 90)) - pi
-        let new_x = floor((this.getX() + cos(angle) * power))
-        let new_y = floor((this.getY() + sin(angle) * power))
-
-        return [new_x, new_y]
-    }
-
-    private tryUpdatePosition() {
-        if (this._transform.position.state != ImageState.UPDATED) {
-            if (! this.isAnimating()) {
-                this._transform.position.state = ImageState.UPDATED
-            }
-            this._transform.position.x = object(this._id, 'x')
-            this._transform.position.y = object(this._id, 'y')
-        }
-    }
-
-    private tryUpdateProp(ref: any, objKey?: ObjectValues) {
-        if (ref.state != ImageState.UPDATED) {
-            if (! this.isAnimating()) {
-                ref.state = ImageState.UPDATED
-            }
-            if (objKey) {
-                ref.value = object(this._id, <any>objKey)
-            }
-        }
-    }
+    static PlayerImage(path: string, mode: Mode, playerId: PlayerID, flags: any, _playerId: PlayerID): any {}
+    static MapImage(path: string, mode: Mode, x: number, y: number, flags: any, _playerId: PlayerID) {}
+    static TileImage(tileId: number, mode: Mode, x: number, y: number, flags: any, _playerId: PlayerID) {}
+    static GUIImage(path: string, x: number, y: number, flags: any, _playerId: PlayerID) {}
 }
 
 export {

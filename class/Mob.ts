@@ -1,3 +1,5 @@
+import { Image } from './Image'
+
 enum ATTACK_DIR {
     NONE,
     LEFT,
