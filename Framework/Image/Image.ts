@@ -1,5 +1,4 @@
 const { clock } = os
-const { rad, abs, floor, cos, sin, pi } = math
 
 enum ImageState {
     UPDATED, // up-to-date
@@ -7,38 +6,37 @@ enum ImageState {
     CONSTANTLY // never will be up-to-date
 }
 
-enum Mode {
-    floor,
-    top,
-    supertop,
-    hud,
-    background
+enum ImageMode {
+    FLOOR,
+    TOP,
+    SUPERTOP,
+    HUD,
+    BACKGROUND
 }
 
-enum Type {
-    tile,
-    player,
-    map,
-    gui
+enum ImageType {
+    TILE,
+    PLAYER,
+    MAP,
+    GUI
 }
 
-enum Blend {
+enum ImageBlend {
     NORMAL,
-    light,
-    shade,
-    solid
+    LIGHT,
+    SHADE,
+    SOLID
 }
 
-enum Flag {
-    black,
-    magenta,
-    alpha,
-    nomasking,
-
-    drawalways = 10,
-    rotate,
-    wiggle,
-    recoil
+enum ImageFlag {
+    BLACK,
+    MAGENTA,
+    ALPHA,
+    NO_MASKING,
+    DRAW_ALWAYS = 10,
+    ROTATE,
+    WIGGLE,
+    RECOIL
 }
 
 interface IProp {
@@ -92,7 +90,7 @@ class Image implements IImage {
             clock: 0
         },
         blend: {
-            value: Blend.NORMAL,
+            value: ImageBlend.NORMAL,
         },
         size: {
             width: 0,
@@ -393,16 +391,16 @@ class Image implements IImage {
      * STATIC
      */
 
-    static PlayerImage(path: string, mode: Mode, playerId: PlayerID, flags: any, _playerId: PlayerID): any {}
-    static MapImage(path: string, mode: Mode, x: number, y: number, flags: any, _playerId: PlayerID) {}
-    static TileImage(tileId: number, mode: Mode, x: number, y: number, flags: any, _playerId: PlayerID) {}
+    static PlayerImage(path: string, mode: ImageMode, playerId: PlayerID, flags: any, _playerId: PlayerID): any {}
+    static MapImage(path: string, mode: ImageMode, x: number, y: number, flags: any, _playerId: PlayerID) {}
+    static TileImage(tileId: number, mode: ImageMode, x: number, y: number, flags: any, _playerId: PlayerID) {}
     static GUIImage(path: string, x: number, y: number, flags: any, _playerId: PlayerID) {}
 }
 
+export default Image
 export {
-    Image,
-    Mode,
-    Type,
-    Blend,
-    Flag
+    ImageMode,
+    ImageType,
+    ImageBlend,
+    ImageFlag
 }

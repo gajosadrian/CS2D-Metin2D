@@ -1,4 +1,4 @@
-import { Image } from './Image'
+import Image, { ImageMode } from '../Image/Image'
 
 enum ATTACK_DIR {
     NONE,
@@ -13,7 +13,7 @@ interface ITarget {
     isNPC?: boolean;
 }
 
-const { floor, pow, rad, deg, sin, cos, atan2, abs, pi } = math;
+const { floor, pow, rad, deg, sin, cos, atan2, abs, pi } = math
 
 export class Mob implements IMob {
     private name: string = 'Unknown'
@@ -36,12 +36,10 @@ export class Mob implements IMob {
         isNPC: false
     };
 
-    constructor() {
-
-    }
+    constructor() {}
 
     spawn(x: number, y: number): void {
-        if (!this.path) {
+        if (! this.path) {
             print_error('MOB ERROR: image path isn\'t set')
         }
 
