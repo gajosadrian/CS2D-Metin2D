@@ -1,3 +1,5 @@
+/** @noSelfInFile */
+
 const { clock } = os
 
 enum ImageState {
@@ -43,7 +45,7 @@ interface IProp {
     [key: string]: any
 }
 
-class Image implements IImage {
+export default class Image implements IImage {
     private _id: number
     private _removed: boolean = false
     private _playerId?: number
@@ -105,6 +107,10 @@ class Image implements IImage {
         this._imageMode = mode
         this._playerId = playerId
         this.setPosition(x, y)
+    }
+
+    getImageMode(): ImageMode {
+        return this._imageMode
     }
 
     setAlpha(alpha: number): void {
@@ -397,7 +403,6 @@ class Image implements IImage {
     static GUIImage(path: string, x: number, y: number, flags: any, _playerId: PlayerID) {}
 }
 
-export default Image
 export {
     ImageMode,
     ImageType,

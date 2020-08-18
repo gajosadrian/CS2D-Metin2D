@@ -1,3 +1,5 @@
+/** @noSelfInFile */
+
 import Image, { ImageMode } from '../Image/Image'
 
 enum ATTACK_DIR {
@@ -15,7 +17,7 @@ interface ITarget {
 
 const { floor, pow, rad, deg, sin, cos, atan2, abs, pi } = math
 
-export class Mob implements IMob {
+export default class Mob implements IMob {
     private name: string = 'Unknown'
     private path: string;
     private legsPath: string;
@@ -36,7 +38,7 @@ export class Mob implements IMob {
         isNPC: false
     };
 
-    constructor() {}
+    // constructor() {}
 
     spawn(x: number, y: number): void {
         if (! this.path) {
