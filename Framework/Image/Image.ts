@@ -1,5 +1,7 @@
 /** @noSelfInFile */
 
+import Player from '../Player/Player'
+
 const { clock } = os
 
 enum ImageState {
@@ -11,8 +13,8 @@ enum ImageState {
 enum ImageMode {
     FLOOR,
     TOP,
-    SUPERTOP,
     HUD,
+    SUPER_TOP,
     BACKGROUND
 }
 
@@ -47,12 +49,11 @@ interface IProp {
 
 export default class Image implements IImage {
     private _id: number
-    private _removed: boolean = false
-    private _playerId?: number
+    public player: Player | undefined = undefined
 
-    private _imageMode: ImageMode
+    private _path: string
+    private _mode: ImageMode
     private _shadow: 0 | 1
-    private _isSpritesheet: boolean = false
 
     private _animationClock: number = 0
     private _props: IProp = {
@@ -103,18 +104,30 @@ export default class Image implements IImage {
         }
     }
 
-    constructor(imagePath: string, x: number, y: number, mode: ImageMode, playerId?: PlayerID) {
-        this._imageMode = mode
-        this._playerId = playerId
-        this.setPosition(x, y)
+    constructor(path: string, x: number, y: number, mode: ImageMode, playerId?: PlayerID) {
+        this._path = path
+        this._mode = mode
+        if (playerId) this.player = Player.getInstance(playerId)
+
+        this.setProp('blend', 'value', ImageBlend.NORMAL, ImageState.UPDATED)
+        this.setProp('position', 'x', x)
+        this.setProp('position', 'y', y, ImageState.UPDATED)
+        this.setProp('rotation', 'value', 0, ImageState.UPDATED)
     }
 
-    getImageMode(): ImageMode {
-        return this._imageMode
+    isSpritesheet(): boolean {
+        if (this._path.match('<spritesheet:')) {
+            return true
+        }
+        return false
+    }
+
+    getMode(): ImageMode {
+        return this._mode
     }
 
     setAlpha(alpha: number): void {
-        this.setProp('alpha', 'value', alpha, ImageState.UPDATED, 0)
+        this.setProp('alpha', 'value', alpha, ImageState.UPDATED)
 
         imagealpha(this._id, alpha)
     }
@@ -137,7 +150,7 @@ export default class Image implements IImage {
     setColor(r: number, g: number, b: number): void {
         this.setProp('color', 'r', r)
         this.setProp('color', 'g', g)
-        this.setProp('color', 'b', b, ImageState.UPDATED, 0)
+        this.setProp('color', 'b', b, ImageState.UPDATED)
 
         imagecolor(this._id, r, g, b)
     }
@@ -149,10 +162,10 @@ export default class Image implements IImage {
 
     setPosition(x: number, y: number, rotation?: number): void {
         this.setProp('position', 'x', x)
-        this.setProp('position', 'y', y, ImageState.UPDATED, 0)
+        this.setProp('position', 'y', y, ImageState.UPDATED)
 
         if (rotation) {
-            this.setProp('rotation', 'value', rotation, ImageState.UPDATED, 0)
+            this.setProp('rotation', 'value', rotation, ImageState.UPDATED)
         }
 
         imagepos(this._id, x, y, this.getProp('rotation').value)
@@ -185,7 +198,7 @@ export default class Image implements IImage {
 
     setScale(x: number, y: number): void {
         this.setProp('scale', 'x', x)
-        this.setProp('scale', 'y', y, ImageState.UPDATED, 0)
+        this.setProp('scale', 'y', y, ImageState.UPDATED)
 
         imagescale(this._id, x, y)
     }
@@ -218,7 +231,7 @@ export default class Image implements IImage {
     }
 
     setFrame(frame: number): void {
-        this.setProp('frame', 'value', frame, ImageState.UPDATED, 0)
+        this.setProp('frame', 'value', frame, ImageState.UPDATED)
 
         imageframe(this._id, frame)
     }
@@ -252,13 +265,13 @@ export default class Image implements IImage {
     }
 
     animateFrameConstantly(speed: number, mode: 0 | 1 | 2 | 3 | 4): void {
-        this.setPropState('frame', ImageState.CONSTANTLY, -1)
+        this.setPropState('frame', ImageState.CONSTANTLY)
 
         tween_animate(this._id, speed, mode)
     }
 
     animateRotationConstantly(speed: number): void {
-        this.setPropState('rotation', ImageState.CONSTANTLY, -1)
+        this.setPropState('rotation', ImageState.CONSTANTLY)
 
         tween_rotateconstantly(this._id, speed)
     }
@@ -286,10 +299,10 @@ export default class Image implements IImage {
             this.setPropState('position', ImageState.UPDATING, time)
         } else {
             this.setProp('position', 'x', x)
-            this.setProp('position', 'y', y, ImageState.UPDATED, 0)
+            this.setProp('position', 'y', y, ImageState.UPDATED)
         }
 
-        this.setProp('rotation', 'value', rotation, ImageState.UPDATED, 0)
+        this.setProp('rotation', 'value', rotation, ImageState.UPDATED)
 
         tween_move(this._id, time, x, y, rotation)
     }
@@ -336,7 +349,6 @@ export default class Image implements IImage {
     }
 
     remove(): void {
-        this._removed = true
         freeimage(this._id)
         delete this._id
     }
@@ -372,35 +384,73 @@ export default class Image implements IImage {
     private tryUpdatePosition(): void {
         const position = this._props.position
 
-        if (position.state != ImageState.UPDATED) {
+        if (position.state == ImageState.UPDATED) return;
+
+        if (position.state == ImageState.UPDATING) {
             if (! this.isAnimating('position')) {
                 position.state = ImageState.UPDATED
             }
-            position.x = imageparam(this._id, 'x')
-            position.y = imageparam(this._id, 'y')
         }
+
+        position.x = imageparam(this._id, 'x')
+        position.y = imageparam(this._id, 'y')
     }
 
-    private tryUpdateProp(key: string, field: string, param: any): void {
+    private tryUpdateProp(key: string, field: string, param: string): void {
         const prop = this.getProp(key)
 
-        if (prop.state != ImageState.UPDATED) {
-            if (! this.isAnimating(key)) {
+        if (prop.state == ImageState.UPDATED) return;
+
+        if (prop.state == ImageState.UPDATING) {
+            if (! this.isAnimating('position')) {
                 prop.state = ImageState.UPDATED
             }
-
-            prop[field] = imageparam(this._id, <any>param)
         }
+
+        prop[field] = imageparam(this._id, <any>param)
     }
 
     /**
      * STATIC
      */
 
-    static PlayerImage(path: string, mode: ImageMode, playerId: PlayerID, flags: any, _playerId: PlayerID): any {}
-    static MapImage(path: string, mode: ImageMode, x: number, y: number, flags: any, _playerId: PlayerID) {}
-    static TileImage(tileId: number, mode: ImageMode, x: number, y: number, flags: any, _playerId: PlayerID) {}
-    static GUIImage(path: string, x: number, y: number, flags: any, _playerId: PlayerID) {}
+    static PlayerImage(path: string, mode: ImageMode, playerId: PlayerID, flags: ImageFlag[], _playerId?: PlayerID): Image {
+        if (mode == ImageMode.FLOOR) {
+            mode = playerId + 100
+        } else if (mode == ImageMode.TOP) {
+            mode = playerId + 200
+        } else if (mode == ImageMode.SUPER_TOP) {
+            mode = playerId + 132
+        }
+
+        let x = 0
+        let y = 0
+        if (flags.includes(ImageFlag.DRAW_ALWAYS)) {
+            y = 1
+        }
+        if (flags.includes(ImageFlag.ROTATE)) {
+            x = 1
+        } else if (flags.includes(ImageFlag.WIGGLE)) {
+            x = 2
+        } else if (flags.includes(ImageFlag.RECOIL)) {
+            x = 3
+        }
+
+        if (flags.includes(ImageFlag.BLACK)) {
+            //
+        } else if (flags.includes(ImageFlag.MAGENTA)) {
+            //
+        } else if (flags.includes(ImageFlag.ALPHA)) {
+            //
+        } else {
+            // no masking
+        }
+
+        return new Image(path, x, y, mode, _playerId)
+    }
+    static MapImage(path: string, mode: ImageMode, x: number, y: number, flags: ImageFlag[], _playerId?: PlayerID) {}
+    static TileImage(tileId: number, mode: ImageMode, x: number, y: number, flags: ImageFlag[], _playerId?: PlayerID) {}
+    static GUIImage(path: string, x: number, y: number, flags: ImageFlag[], _playerId?: PlayerID) {}
 }
 
 export {
