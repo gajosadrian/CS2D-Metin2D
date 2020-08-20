@@ -55,7 +55,7 @@ export default class Image implements IImage {
     private _mode: ImageMode
     private _shadow: 0 | 1
 
-    private _animationClock: number = 0
+    private _animatingProps = ['position', 'scale', 'rotation', 'color', 'alpha', 'frame']
     private _props: IProp = {
         position: {
             x: 0,
@@ -322,21 +322,32 @@ export default class Image implements IImage {
     isAnimating(key?: string): boolean {
         const clockTime = clock()
 
+        // if "key"
         if (key) {
             const prop = this.getProp(key)
             return prop.clock == -1 || prop.clock >= clockTime
         }
 
-        return this._animationClock == -1 || this._animationClock >= clockTime
+        // else: check all props
+        for (const i of forRange(0, this._animatingProps.length)) {
+            const key = this._animatingProps[i]
+            const prop = this.getProp(key)
+
+            if (prop.clock == -1 || prop.clock >= clockTime) {
+                return true
+            }
+        }
+
+        return false
     }
 
     private setAnimationClock(key: string, time: number): void {
-        const newAnimationClock = clock() + (time * 0.001)
         const prop = this.getProp(key)
 
-        if (prop.clock < newAnimationClock) {
-            prop.clock = newAnimationClock
-            this._animationClock = newAnimationClock
+        if (time > 0) {
+            prop.clock = clock() + (time * 0.001)
+        } else {
+            prop.clock = time
         }
     }
 
@@ -353,28 +364,31 @@ export default class Image implements IImage {
         delete this._id
     }
 
-    private setProp(key: string, field: string, val: any, state?: ImageState, animationTime?: number): void {
+    private setProp(key: string, field: string, val: any, state?: ImageState, animationTime: number = 0): void {
         const prop = this.getProp(key)
 
         if (state) {
             prop.state = state
         }
 
-        if (animationTime) {
-            this.setAnimationClock(key, animationTime)
+        if (prop.state == ImageState.CONSTANTLY) {
+            animationTime = -1
         }
 
+        this.setAnimationClock(key, animationTime)
         prop[field] = val
     }
 
-    private setPropState(key: string, state: ImageState, animationTime?: number): void {
+    private setPropState(key: string, state: ImageState, animationTime: number = 0): void {
         const prop = this.getProp(key)
 
-        prop.state = ImageState
+        prop.state = state
 
-        if (animationTime) {
-            this.setAnimationClock(key, animationTime)
+        if (prop.state == ImageState.CONSTANTLY) {
+            animationTime = -1
         }
+
+        this.setAnimationClock(key, animationTime)
     }
 
     private getProp(key: string): IProp {
@@ -402,7 +416,7 @@ export default class Image implements IImage {
         if (prop.state == ImageState.UPDATED) return;
 
         if (prop.state == ImageState.UPDATING) {
-            if (! this.isAnimating('position')) {
+            if (! this.isAnimating(key)) {
                 prop.state = ImageState.UPDATED
             }
         }
