@@ -1,6 +1,6 @@
 /** @noSelfInFile */
 
-import Image, { ImageMode } from '../Image/Image'
+import { Image, ImageMode } from '../Image/Image'
 
 enum ATTACK_DIR {
     NONE,
@@ -17,7 +17,7 @@ interface ITarget {
 
 const { floor, pow, rad, deg, sin, cos, atan2, abs, pi } = math
 
-export default class Mob implements IMob {
+export class Mob implements IMob {
     private name: string = 'Unknown'
     private path: string;
     private legsPath: string;

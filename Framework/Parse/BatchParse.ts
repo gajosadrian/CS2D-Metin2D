@@ -8,7 +8,7 @@ const { format } = string
 const { concat } = table
 const MAX_BUFFER = 512
 
-export default class BatchParse {
+export class BatchParse {
     private static _buffer: string[] = []
 
     public static add(command: string): BatchParse {

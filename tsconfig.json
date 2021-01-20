@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "esnext",
     "lib": ["esnext"],
     "noLib": false,
     "strict": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "moduleResolution": "node"
   },
 
   "tstl": {

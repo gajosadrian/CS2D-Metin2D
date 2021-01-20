@@ -1,6 +1,6 @@
 /** @noSelfInFile */
 
-import Player from '../Player/Player'
+import { Player } from '../Player/Player'
 
 const { clock } = os
 
@@ -47,7 +47,7 @@ interface IProp {
     [key: string]: any
 }
 
-export default class Image implements IImage {
+export class Image implements IImage {
     private _id: number
     public player: Player | undefined = undefined
 
@@ -116,7 +116,7 @@ export default class Image implements IImage {
     }
 
     isSpritesheet(): boolean {
-        if (this._path.match('<spritesheet:')) {
+        if (string.match(this._path, '<spritesheet:')) {
             return true
         }
         return false
@@ -329,7 +329,7 @@ export default class Image implements IImage {
         }
 
         // else: check all props
-        for (const i of forRange(0, this._animatingProps.length)) {
+        for (const i of forRange(0, this._animatingProps.length - 1)) {
             const key = this._animatingProps[i]
             const prop = this.getProp(key)
 

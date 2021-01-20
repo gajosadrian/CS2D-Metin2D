@@ -1,6 +1,6 @@
 /** @noSelfInFile */
 
-import Player from './Player'
+import { Player } from './Player'
 
 class PlayerManager {
     public static onJoin(id: PlayerID) {

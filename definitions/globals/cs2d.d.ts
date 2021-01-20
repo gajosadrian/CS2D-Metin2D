@@ -936,7 +936,7 @@ declare function menu(id: number, content: string): void;
  *
  * It's also possible to display the text at the center of the screen. Just end "text" with "@C" (read: at center) to do so!
 */
-declare function msg(text: string): void;
+declare function msg(text: string | number): void;
 /**
  * Sends "text" to a certain player (id) only. It will be displayed in the chat area of the screen of that player (bottom left).
  *
@@ -944,7 +944,7 @@ declare function msg(text: string): void;
  *
  * It's also possible to display the text at the center of the screen. Just end "text" with "@C" (read: at center) to do so!
 */
-declare function msg2(player: PlayerID, text: string): void;
+declare function msg2(player: PlayerID, text: string | number): void;
 /**
  * Returns a value of a dynamic object
  *
