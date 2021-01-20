@@ -1,7 +1,7 @@
 /** @noSelfInFile */
 
 import { Hook } from './Hook'
-import { Player } from 'Framework'
+import { Player } from '../Player/Player'
 
 class HookWrapper {
     /** @noSelf **/
