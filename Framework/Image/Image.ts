@@ -361,7 +361,7 @@ export default class Image implements IImage {
 
     remove(): void {
         freeimage(this._id)
-        delete this._id
+        this._id = -1
     }
 
     private setProp(key: string, field: string, val: any, state?: ImageState, animationTime: number = 0): void {

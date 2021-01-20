@@ -23,7 +23,7 @@ class Player {
 
     remove(): void {
         delete players[this.id]
-        delete this.id
+        this.id = 0
     }
 }
 
