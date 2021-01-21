@@ -3,3 +3,4 @@ luac.out
 *.luac
 *.lua
 !lualib_bundle.lua
+!server.lua

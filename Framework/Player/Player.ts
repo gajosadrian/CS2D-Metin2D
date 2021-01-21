@@ -1,5 +1,7 @@
 /** @noSelfInFile */
 
+import { PlayerData } from './PlayerData'
+
 const _player = player
 const { remove } = table
 
@@ -10,8 +12,12 @@ export class Player {
     private x: number = 0
     private y: number = 0
 
+    public data: PlayerData
+
     constructor(public id: PlayerID) {
         this.init(id)
+
+        // this.data = PlayerData.getInstance()
     }
 
     static add(id: PlayerID) {
@@ -30,7 +36,7 @@ export class Player {
     static getPlayers(type: PlayerValueTable = 'table'): Player[] {
         if (type == 'table') return PLAYERS
 
-        const table = player(0, type)
+        const table = _player(0, type)
         const players: Player[] = []
         for (const i of forRange(0, table.length - 1)) {
             players[players.length] = this.getInstance(table[i])
