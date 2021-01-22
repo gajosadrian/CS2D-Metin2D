@@ -20,36 +20,7 @@ export class Player {
         // this.data = PlayerData.getInstance()
     }
 
-    static add(id: PlayerID) {
-        if (PLAYERS_ID[id]) PLAYERS_ID[id].remove()
-        return new Player(id)
-    }
-
-    static remove(id: PlayerID) {
-        Player.getInstance(id).remove()
-    }
-
-    static getInstance(id: PlayerID): Player {
-        return PLAYERS_ID[id]
-    }
-
-    static getPlayers(type: PlayerValueTable = 'table'): Player[] {
-        if (type == 'table') return PLAYERS
-
-        const table = _player(0, type)
-        const players: Player[] = []
-        for (const i of forRange(0, table.length - 1)) {
-            players[players.length] = this.getInstance(table[i])
-        }
-        return players
-    }
-
-    static getPlayersAlive(): Player[] {
-        return Player.getPlayers('tableliving')
-    }
-
-    private init(id: PlayerID): void {
-        this.id = id
+    private init(id: PlayerID) {
         PLAYERS[PLAYERS.length] = this
         PLAYERS_ID[id] = this
     }
@@ -59,8 +30,23 @@ export class Player {
 
         const index = PLAYERS.indexOf(this)
         remove(PLAYERS, index)
-        
+
         this.id = 0
+    }
+
+    static add(id: PlayerID) {
+        // Make sure that last player with this id is removed
+        if (PLAYERS_ID[id]) PLAYERS_ID[id].remove()
+
+        return new Player(id)
+    }
+
+    static remove(id: PlayerID) {
+        Player.getInstance(id).remove()
+    }
+
+    static getInstance(id: PlayerID): Player {
+        return PLAYERS_ID[id]
     }
 
     getX(precise: boolean = false) {
@@ -81,5 +67,20 @@ export class Player {
     updatePosition() {
         this.x = this.getX(true)
         this.y = this.getY(true)
+    }
+
+    static getPlayers(type: PlayerValueTable = 'table'): Player[] {
+        if (type == 'table') return PLAYERS
+
+        const table = _player(0, type)
+        const players: Player[] = []
+        for (const i of forRange(0, table.length - 1)) {
+            players[players.length] = this.getInstance(table[i])
+        }
+        return players
+    }
+
+    static getPlayersAlive(): Player[] {
+        return Player.getPlayers('tableliving')
     }
 }

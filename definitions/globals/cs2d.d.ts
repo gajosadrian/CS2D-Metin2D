@@ -117,10 +117,23 @@ declare type ObjectValueNumbers = "type" | "health" | "mode" | "team" | "player"
 declare type ObjectValueTable = "table"
 declare type ObjectValues = ObjectValueBoolean | ObjectValueNumbers | ObjectValueTable
 /**
+ * Values that can be passed onto as a parameter to the 'item' function.
+*/
+declare type WeaponItemValueBoolean = "exists"
+declare type WeaponItemValueNumbers = "type" | "player" | "ammo" | "ammoin" | "x" | "y" | "droptimer"
+declare type WeaponItemValueStrings = "name" | "mode"
+declare type WeaponItemValueTable = "table"
+declare type WeaponItemValues = WeaponItemValueBoolean | WeaponItemValueNumbers | WeaponItemValueStrings | WeaponItemValueTable
+/**
  * Values that can be passed onto as a parameter to the 'objecttype' function.
  */
 declare type ObjectTypeValueStrings = "name" | "internalname"
 declare type ObjectTypeValueNumbers = "type" | "price" | "health" | "killmoney" | "limit" | "upgradepoints" | "upgradeprice" | "upgradeto"
+/**
+ * Values that can be passed onto as a parameter to the 'itemtype' function.
+ */
+declare type WeaponItemTypeValueStrings = "name"
+declare type WeaponItemTypeValueNumbers = "dmg" | "dmg_z1" | "dmg_z2" | "rate" | "reload" | "ammo" | "ammoin" | "price" | "range" | "dispersion" | "slot" | "recoil"
 /**
  * Values that can be passed onto as a parameter to the 'map' function.
 */
@@ -623,7 +636,7 @@ declare function ai_attack(id: PlayerID, secondary?: number): void;
 /**
  * Bot with given ID tries to purchase a certain item
 */
-declare function ai_buy(id: PlayerID, itemtype: number): void;
+declare function ai_buy(id: PlayerID, itemtype: WeaponItemType): void;
 /**
  * Set debug-text for bot (only displayed if "debugai" is enabled).
 */
@@ -701,7 +714,7 @@ declare function ai_sayteam(id: PlayerID, text: string): void;
 /**
  * Bot with given ID selects the weapon specified with itemtype.
 */
-declare function ai_selectweapon(id: PlayerID, itemtype: number): void;
+declare function ai_selectweapon(id: PlayerID, itemtype: WeaponItemType): void;
 /**
  * Bot with given ID sprays a spraylogo at its current position.
 */
@@ -906,6 +919,22 @@ declare function imagescale(id: number, x: number, y: number): void;
  * The "area" of an entity depends on the entity type and and in some cases on its properties.
 */
 declare function inentityzone(x: number, y: number, type: number): boolean;
+/**
+ * Returns a value of an item instance on the map.
+ *
+ * item(0,"table"): returns a Lua table with all IDs of items which are on the map (the unique instance IDs, NOT the type IDs!)
+ */
+declare function item(id: number, value: WeaponItemValueBoolean): boolean;
+declare function item(id: number, value: WeaponItemValueNumbers): number;
+declare function item(id: number, value: WeaponItemValueStrings): string;
+declare function item(id: number, value: WeaponItemValueTable): number[];
+/**
+ * Returns a value of an item type.
+ *
+ * The values are the same for all objects of that type.
+*/
+declare function itemtype(type: WeaponItemType, value: WeaponItemTypeValueStrings): string;
+declare function itemtype(type: WeaponItemType, value: WeaponItemTypeValueNumbers): number;
 /**
  * Returns info about the current map.
 */
