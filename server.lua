@@ -11,5 +11,5 @@ function __LINE__()
 end
 
 _G.package.path = ('./' .. __DIR__() .. '/?.lua;') .. ('./' .. __DIR__() .. '/?/index.lua;') .. tostring(_G.package.path)
-require('./lualib_bundle')
-require('./main')
+require('lualib_bundle')
+require('main')
