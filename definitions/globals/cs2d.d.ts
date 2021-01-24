@@ -120,8 +120,8 @@ declare type ObjectValues = ObjectValueBoolean | ObjectValueNumbers | ObjectValu
  * Values that can be passed onto as a parameter to the 'item' function.
 */
 declare type WeaponItemValueBoolean = "exists" | "dropped"
-declare type WeaponItemValueNumbers = "type" | "player" | "ammo" | "ammoin" | "x" | "y" | "droptimer"
-declare type WeaponItemValueStrings = "name" | "mode"
+declare type WeaponItemValueNumbers = "type" | "player" | "ammo" | "ammoin" | "mode" | "x" | "y" | "droptimer"
+declare type WeaponItemValueStrings = "name"
 declare type WeaponItemValueTable = "table"
 declare type WeaponItemValues = WeaponItemValueBoolean | WeaponItemValueNumbers | WeaponItemValueStrings | WeaponItemValueTable
 /**
@@ -924,6 +924,7 @@ declare function inentityzone(x: number, y: number, type: number): boolean;
  *
  * item(0,"table"): returns a Lua table with all IDs of items which are on the map (the unique instance IDs, NOT the type IDs!)
  */
+declare function item(id: number, value: 'type'): WeaponItemType;
 declare function item(id: number, value: WeaponItemValueBoolean): boolean;
 declare function item(id: number, value: WeaponItemValueNumbers): number;
 declare function item(id: number, value: WeaponItemValueStrings): string;

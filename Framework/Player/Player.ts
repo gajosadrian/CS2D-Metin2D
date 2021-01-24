@@ -4,7 +4,6 @@ import { PlayerData } from './PlayerData'
 import { Helper } from '../Helper/Helper'
 
 const _player = player
-const { remove } = table
 
 const PLAYERS: Player[] = []
 const PLAYERS_ID: Player[] = []
@@ -26,12 +25,9 @@ export class Player {
         PLAYERS_ID[id] = this
     }
 
-    private remove() {
+    remove() {
         delete PLAYERS_ID[this.id]
-
-        const index = PLAYERS.indexOf(this)
-        remove(PLAYERS, index)
-
+        Helper.table_removeValue(PLAYERS, this)
         this.id = 0
     }
 
@@ -42,12 +38,12 @@ export class Player {
         return new Player(id)
     }
 
-    static remove(id: PlayerID) {
-        Player.getInstance(id).remove()
-    }
-
     static getInstance(id: PlayerID): Player {
         return PLAYERS_ID[id]
+    }
+
+    static exists(id: PlayerID): boolean {
+        return _player(id, 'exists')
     }
 
     getX(precise: boolean = false) {

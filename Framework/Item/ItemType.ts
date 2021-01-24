@@ -9,12 +9,12 @@ export class ItemType {
         this.init(id)
     }
 
-    private init(id: WeaponItemType) {
-        ITEMTYPES_ID[id] = this
-    }
-
     static add(id: WeaponItemType) {
         return new ItemType(id)
+    }
+
+    private init(id: WeaponItemType) {
+        ITEMTYPES_ID[id] = this
     }
 
     static getInstance(id: WeaponItemType): ItemType {

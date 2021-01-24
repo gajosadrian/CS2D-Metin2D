@@ -2,6 +2,7 @@
 
 import { ItemType } from './ItemType'
 import { Parse } from '../Parse/Parse'
+import { Helper } from 'Framework/Helper'
 
 const _item = item
 
@@ -15,23 +16,54 @@ export class Item {
     private _y: number
     private _ammoIn?: number
     private _ammo?: number
-    private _mode?: string
+    private _mode?: number
     private _dropped?: boolean
 
-    constructor(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number) {
+    constructor(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number, __id?: number) {
         this.type = ItemType.getInstance(typeId)
 
         this._x = x
         this._y = y
         this._ammoIn = ammoIn
         this._ammo = ammo
+
+        ITEMS[ITEMS.length] = this
+        this.spawn(typeId, x, y, ammoIn, ammo, __id)
     }
 
-    private init() {}
+    static add(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number) {
+        return new Item(typeId, x, y, ammoIn, ammo)
+    }
 
-    private remove() {}
+    private spawn(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number, __id?: number) {
+        if (! __id) Parse.instant(`spawnitem ${typeId} ${x} ${y} ${ammoIn} ${ammo}`)
+        this.id = __id || Item.getLastId()
+        ITEMS_ID[this.id] = this
+    }
 
-    static add(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number) {}
+    private respawn(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number) {
+        this.destroy()
+        this.spawn(typeId, x, y, ammoIn, ammo)
+    }
+
+    destroy() {
+        Parse.instant(`removeitem ${this.id}`)
+        delete ITEMS_ID[this.id]
+        this.id = -1
+    }
+
+    remove() {
+        this.destroy()
+        Helper.table_removeValue(ITEMS, this)
+    }
+
+    static getInstance(id: number): Item {
+        return ITEMS_ID[id]
+    }
+
+    exists(): boolean {
+        return _item(this.id, 'exists')
+    }
 
     getX(): number {
         return this._x
@@ -39,6 +71,10 @@ export class Item {
 
     getY(): number {
         return this._y
+    }
+
+    setPosition(x: number, y: number) {
+        this.respawn(this.type.id, x, y, this.getAmmoIn(), this.getAmmo())
     }
 
     /** @tupleReturn */
@@ -60,7 +96,7 @@ export class Item {
         return this._ammo
     }
 
-    getMode(): string {
+    getMode(): number {
         if (! this._mode) this._mode = _item(this.id, 'mode')
         return this._mode
     }
@@ -74,8 +110,42 @@ export class Item {
         return _item(this.id, 'droptimer')
     }
 
-    getLastId(): number {
+    commitParse() {
+        Parse.exec()
+    }
+
+    static getLastId(): number {
         const itemIds = _item(0, 'table')
         return itemIds[itemIds.length - 1]
+    }
+
+    static getItems(): Item[] {
+        return ITEMS
+    }
+
+    static getItemsAt(tileX: number, tileY: number): Item[] {
+        const items: Item[] = []
+        for (const i of forRange(0, ITEMS.length - 1)) {
+            const item = ITEMS[i]
+            if (item.getX() == tileX && item.getY() == tileY) {
+                items[items.length] = item
+            }
+        }
+        return items
+    }
+
+    static getCloseItems(tileX: number, tileY: number, range: number): Item[] {
+        const items: Item[] = []
+        for (const i of forRange(0, ITEMS.length - 1)) {
+            const item = ITEMS[i]
+            if (Helper.isInRange(tileX, tileY, item.getX(), item.getY(), range)) {
+                items[items.length] = item
+            }
+        }
+        return items
+    }
+
+    static clearTables() {
+        ITEMS.length = 0
     }
 }

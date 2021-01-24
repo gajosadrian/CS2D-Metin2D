@@ -1,9 +1,9 @@
 /** @noSelfInFile */
 
-const { ceil, floor } = math
+const { ceil, floor, sqrt } = math
+const { remove } = table
 
 export class Helper {
-    /** @noSelf */
     static math_round(num: number, base?: number) {
         if (! base) {
             // Ternary gets transpiled into garbage, so use classic if else
@@ -24,7 +24,6 @@ export class Helper {
         }
     }
 
-    /** @noSelf */
     static table_slice(array: any[], first: number, last: number, step: number = 1) {
         let sliced = []
         for (let i of forRange(first || 0, last || array.length - 1, step)) {
@@ -33,7 +32,6 @@ export class Helper {
         return sliced
     }
 
-    /** @noSelf */
     static table_chunks(array: any[], chunkSize: number) {
         let temp = []
         let j = array.length - 1
@@ -43,12 +41,27 @@ export class Helper {
         return temp
     }
 
-    /** @noSelf */
+    static table_removeValue(array: any[], value: any) {
+        const index = array.indexOf(this)
+        remove(array, index)
+    }
+
+    static getDistance(x1: number, y1: number, x2: number, y2: number): number {
+        const dx = x1 - x2
+        const dy = y1 - y2
+        return sqrt(dx*dx + dy*dy)
+    }
+
+    static isInRange(x1: number, y1: number, x2: number, y2: number, range: number): boolean {
+        const dx = x1 - x2
+        const dy = y1 - y2
+        return (dx*dx + dy*dy) <= (range*range)
+    }
+
     static pixelToTile(pixel: number): number {
         return this.math_round((pixel - 16) / 32)
     }
 
-    /** @noSelf */
     static tileToPixel(tile: number): number {
         return (tile * 32) + 16
     }

@@ -12,19 +12,24 @@ const MAX_BUFFER = 512
 export class Parse {
     private static _buffer: string[] = []
 
-    public static add(command: string): Parse {
+    static instant(command: string) {
+        this.add(command)
+        this.exec()
+    }
+
+    static add(command: string): Parse {
         this._buffer[this._buffer.length] = command
         return Parse
     }
 
     /** @vararg */
-    public static addf(command: string, ...args: Vararg<any>): Parse {
+    static addf(command: string, ...args: Vararg<any>): Parse {
         const cmd = format(command, ...args)
         this._buffer[this._buffer.length] = cmd
         return Parse
     }
 
-    public static exec(): void {
+    static exec(): void {
         if (this._buffer.length == 0) return;
 
         if (this._buffer.length > MAX_BUFFER) {
@@ -42,15 +47,15 @@ export class Parse {
         this.clear()
     }
 
-    public static clear(): void {
+    static clear(): void {
         this._buffer = []
     }
 
-    public static getBufferArray(): any {
+    static getBufferArray(): any {
         return this._buffer
     }
 
-    public static getBufferCount(): number {
+    static getBufferCount(): number {
         return this._buffer.length
     }
 
