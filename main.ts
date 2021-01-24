@@ -5,7 +5,6 @@
  */
 // import 'lib/timerex/timerex'
 import 'lib/imagefont/imagefont'
-print(textwidth('test'))
 
 // import _utf8 from 'lib/utf8/utf8'
 // declare var UTF8: any
