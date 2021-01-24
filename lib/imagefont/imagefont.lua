@@ -65,21 +65,29 @@ local function charwidth(char, textSize)
     return(0)
 end
 
-local len, sub = string.len, string.sub
+local string_len, sub = string.len, string.sub
 
 local function textwidth(text, textSize)
     if (textSize == nil) then
         textSize = 13
     end
     local len = 0
-    for i = 1, len(text) do
+    for i = 1, string_len(text) do
         len = len + charwidth(sub(text, i, i), textSize)
     end
     return(len)
 end
 
-return {
-	imageFont = imageFont,
-	charwidth = charwidth,
-	textwidth = textwidth,
-}
+local function __DIR__()
+    return __FILE__():match('(.*\\)')
+end
+
+local function __FILE__()
+    local path = debug.getinfo(2, 'S').source:sub(2):gsub('/', '\\')
+    return path
+end
+
+imageFont.Load(__DIR__() .. 'font.dat')
+
+_G.charwidth = charwidth
+_G.textwidth = textwidth
