@@ -2,6 +2,6 @@ desktop.ini
 luac.out
 *.luac
 *.lua
-!lib/*.lua
+!lib/**/*.lua
 !lualib_bundle.lua
 !server.lua
