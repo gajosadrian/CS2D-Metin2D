@@ -119,7 +119,7 @@ declare type ObjectValues = ObjectValueBoolean | ObjectValueNumbers | ObjectValu
 /**
  * Values that can be passed onto as a parameter to the 'item' function.
 */
-declare type WeaponItemValueBoolean = "exists"
+declare type WeaponItemValueBoolean = "exists" | "dropped"
 declare type WeaponItemValueNumbers = "type" | "player" | "ammo" | "ammoin" | "x" | "y" | "droptimer"
 declare type WeaponItemValueStrings = "name" | "mode"
 declare type WeaponItemValueTable = "table"

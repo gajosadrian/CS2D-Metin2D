@@ -1,6 +1,7 @@
 /** @noSelfInFile */
 
 import { PlayerData } from './PlayerData'
+import { Helper } from '../Helper/Helper'
 
 const _player = player
 const { remove } = table
@@ -50,18 +51,33 @@ export class Player {
     }
 
     getX(precise: boolean = false) {
-        if (precise) return _player(this.id, 'x')
+        if (precise) this.x = _player(this.id, 'x')
         return this.x
     }
 
     getY(precise: boolean = false) {
-        if (precise) return _player(this.id, 'y')
+        if (precise) this.y = _player(this.id, 'y')
         return this.y
+    }
+
+    getTileX(precise: boolean = false) {
+        if (precise) return _player(this.id, 'tilex')
+        return Helper.pixelToTile( this.getX() )
+    }
+
+    getTileY(precise: boolean = false) {
+        if (precise) return _player(this.id, 'tiley')
+        return Helper.pixelToTile( this.getY() )
     }
 
     /** @tupleReturn */
     getPosition(precise: boolean = false): [number, number] {
         return [this.getX(precise), this.getY(precise)]
+    }
+
+    /** @tupleReturn */
+    getTilePosition(precise: boolean = false): [number, number] {
+        return [this.getTileX(precise), this.getTileY(precise)]
     }
 
     updatePosition() {

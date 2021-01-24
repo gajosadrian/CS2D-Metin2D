@@ -6,21 +6,22 @@
 
 const { format } = string
 const { concat } = table
+
 const MAX_BUFFER = 512
 
-export class BatchParse {
+export class Parse {
     private static _buffer: string[] = []
 
-    public static add(command: string): BatchParse {
+    public static add(command: string): Parse {
         this._buffer[this._buffer.length] = command
-        return BatchParse
+        return Parse
     }
 
     /** @vararg */
-    public static addf(command: string, ...args: Vararg<any>): BatchParse {
+    public static addf(command: string, ...args: Vararg<any>): Parse {
         const cmd = format(command, ...args)
         this._buffer[this._buffer.length] = cmd
-        return BatchParse
+        return Parse
     }
 
     public static exec(): void {

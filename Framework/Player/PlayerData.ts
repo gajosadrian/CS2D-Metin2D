@@ -2,7 +2,7 @@
 
 import { Player } from './Player'
 
-const { floor, random } = math
+const { random } = math
 
 const DATA: PlayerData[] = []
 

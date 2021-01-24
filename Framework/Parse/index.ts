@@ -1,1 +1,1 @@
-export * from './BatchParse'
+export * from './Parse'
