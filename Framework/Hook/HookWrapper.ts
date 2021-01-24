@@ -53,7 +53,12 @@ class HookWrapper {
 
     /** @noSelf **/
     public static Collect(playerId: PlayerID, itemId: number, itemTypeId: WeaponItemType, ammoIn: number, ammo: number, mode: number) {
-        // msg(`playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}]`)
+        msg(`playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}]`)
+    }
+
+    /** @noSelf **/
+    public static Drop(playerId: PlayerID, itemId: number, itemTypeId: WeaponItemType, ammoIn: number, ammo: number, mode: number, tileX: number, tileY: number) {
+        msg(`playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}] x[${tileX}] y[${tileY}]`)
     }
 }
 
@@ -66,3 +71,4 @@ addhook('leave', '__CS2DHookWrapper__.Leave')
 addhook('ms100', '__CS2DHookWrapper__.Ms100')
 addhook('second', '__CS2DHookWrapper__.Second')
 addhook('collect', '__CS2DHookWrapper__.Collect')
+addhook('drop', '__CS2DHookWrapper__.Drop')
