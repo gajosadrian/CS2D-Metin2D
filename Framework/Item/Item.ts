@@ -37,7 +37,7 @@ export class Item {
 
     private spawn(typeId: WeaponItemType, x: number, y: number, ammoIn?: number, ammo?: number, __id?: number) {
         if (! __id) Parse.instant(`spawnitem ${typeId} ${x} ${y} ${ammoIn} ${ammo}`)
-        this.id = __id || Item.getLastId()
+        this.id = __id || Item.getNewId()
         ITEMS_ID[this.id] = this
     }
 
@@ -46,14 +46,14 @@ export class Item {
         this.spawn(typeId, x, y, ammoIn, ammo)
     }
 
-    destroy() {
-        Parse.instant(`removeitem ${this.id}`)
+    destroy(__id?: number) {
+        if (! __id) Parse.instant(`removeitem ${this.id}`)
         delete ITEMS_ID[this.id]
         this.id = -1
     }
 
-    remove() {
-        this.destroy()
+    remove(__id?: number) {
+        this.destroy(__id)
         Helper.table_removeValue(ITEMS, this)
     }
 
@@ -117,6 +117,14 @@ export class Item {
     static getLastId(): number {
         const itemIds = _item(0, 'table')
         return itemIds[itemIds.length - 1]
+    }
+
+    static getNewId(): number {
+        let id = 1
+        while (ITEMS_ID[id]) {
+            id++
+        }
+        return id
     }
 
     static getItems(): Item[] {

@@ -1,6 +1,7 @@
 /** @noSelfInFile */
 
 import { Hook } from './Hook'
+import { Parse } from '../Parse/Parse'
 import { Player } from '../Player/Player'
 import { Item } from '../Item/Item'
 
@@ -8,11 +9,12 @@ class HookWrapper {
     /** @noSelf **/
     public static Startround() {
         Item.clearTables()
-        const itemIds = item(0, 'table')
-        for (const i of forRange(0, itemIds.length - 1)) {
-            const itemId = itemIds[i]
-            new Item(item(itemId, 'type'), item(itemId, 'x'), item(itemId, 'y'), undefined, undefined, itemId)
-        }
+
+        // const itemIds = item(0, 'table')
+        // for (const i of forRange(0, itemIds.length - 1)) {
+        //     const itemId = itemIds[i]
+        //     new Item(item(itemId, 'type'), item(itemId, 'x'), item(itemId, 'y'), undefined, undefined, itemId)
+        // }
     }
 
     /** @noSelf **/
@@ -39,26 +41,54 @@ class HookWrapper {
             player.updatePosition()
         }
 
+        // DEBUG
+        if (true) {
+            const id = 1
+            let x = 50, y = 200
+            const white = String.fromCharCode(169)+`255255255`
+            const items = Item.getItems()
+
+            Parse.add(`hudtxt2 ${id} 199 "${white}${items.length}/${item(0, 'table').length} items" ${x} ${y}`)
+            Parse.exec()
+        }
+
         Hook.call('ms100')
     }
 
     /** @noSelf **/
     public static Second() {
-        const items = Item.getItems()
-
-        msg(`${items.length}/${item(0, 'table').length} items`)
-
         Hook.call('second')
     }
 
     /** @noSelf **/
     public static Collect(playerId: PlayerID, itemId: number, itemTypeId: WeaponItemType, ammoIn: number, ammo: number, mode: number) {
-        msg(`playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}]`)
+        const player = Player.getInstance(playerId)
+        const item = Item.getInstance(itemId)
+
+        msg(`COLLECT playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}]`)
+
+        Hook.call('collect', player, item)
+        item.remove(itemId)
     }
 
     /** @noSelf **/
     public static Drop(playerId: PlayerID, itemId: number, itemTypeId: WeaponItemType, ammoIn: number, ammo: number, mode: number, tileX: number, tileY: number) {
-        msg(`playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}] x[${tileX}] y[${tileY}]`)
+        const player = Player.getInstance(playerId)
+        const item = new Item(itemTypeId, tileX, tileY, ammoIn, ammo, itemId)
+
+        msg(`DROP playerId[${playerId}] itemId[${itemId}] itemTypeId[${itemTypeId}] ammoIn[${ammoIn}] ammo[${ammo}] mode[${mode}] x[${tileX}] y[${tileY}]`)
+
+        Hook.call('drop', player, item)
+    }
+
+    /** @noSelf **/
+    public static Itemfadeout(itemId: number, itemTypeId: WeaponItemType, tileX: number, tileY: number) {
+        const item = Item.getInstance(itemId)
+
+        msg(`ITEMFADEOUT itemId[${itemId}] itemTypeId[${itemTypeId}] x[${tileX}] y[${tileY}]`)
+
+        Hook.call('itemfadeout', item)
+        item.remove(itemId)
     }
 }
 
@@ -72,3 +102,4 @@ addhook('ms100', '__CS2DHookWrapper__.Ms100')
 addhook('second', '__CS2DHookWrapper__.Second')
 addhook('collect', '__CS2DHookWrapper__.Collect')
 addhook('drop', '__CS2DHookWrapper__.Drop')
+addhook('itemfadeout', '__CS2DHookWrapper__.Itemfadeout')

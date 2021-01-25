@@ -18,3 +18,5 @@ import 'lib/imagefont/imagefont'
  * Framework
  */
 import './Framework/Hook/HookWrapper'
+
+parse('mp_hudscale 1')

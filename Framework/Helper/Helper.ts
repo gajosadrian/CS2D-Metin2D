@@ -42,8 +42,8 @@ export class Helper {
     }
 
     static table_removeValue(array: any[], value: any) {
-        const index = array.indexOf(this)
-        remove(array, index)
+        const index = array.indexOf(value)
+        remove(array, index + 1)
     }
 
     static getDistance(x1: number, y1: number, x2: number, y2: number): number {
